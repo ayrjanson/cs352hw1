@@ -47,19 +47,27 @@ class const_expr : public expr<T> {
     T val;
 
 public:
-    const_expr(const T& v) 
-    : val(unimplemented<T>()) {}
+    ///Question 1a
+    const_expr(const T& v) : val(v) {}
+    ///Original Code: ": val(unimplemented<T>()) {}"
 
+    ///Question 1b
     T eval() const override {
-        return unimplemented<T>();
+        ///Original Code: return unimplemented<T>();
+        return val;
     }
 
+    ///Question 1c
     void print(std::ostream& out) const override {
-        unimplemented<void>();
+        ///Original Code: unimplemented<void>();
+        cout << val;
     }
 
+    ///Question 1d
     const_expr* clone() const override {
-        return unimplemented<const_expr*>();
+        ///Original Code: return unimplemented<const_expr*>();
+        const_expr* cloned = new const_expr();
+        return cloned;
     }
 };
 
@@ -73,9 +81,9 @@ class bin_op_expr : public expr<T> {
     /// The name of the operator
     std::string name;
     /// The left operand
-    std::unique_ptr<expr<A>> left_arg;
+    std::unique_ptr<expr<A> > left_arg;
     /// The right operand
-    std::unique_ptr<expr<B>> right_arg;
+    std::unique_ptr<expr<B> > right_arg;
 
 public:
     /// Constructs a binary operator expression.
@@ -138,44 +146,70 @@ class if_expr : public expr<T> {
 
 public:
     if_expr(expr<bool>* c, expr<T>* t, expr<T>* f)
-    : cond(unimplemented<expr<bool>*>()), 
-      true_branch(unimplemented<expr<T>*>()), 
-      false_branch(unimplemented<expr<T>*>()) {}
+    : cond(c),
+      true_branch(t),
+      false_branch(f) {}
 
     ~if_expr() {
-        unimplemented<void>();
+        delete cond;
+        delete true_branch;
+        delete false_branch;
     }
 
-    if_expr(const if_expr& o) 
-    : cond(unimplemented<expr<bool>*>()), 
-      true_branch(unimplemented<expr<T>*>()), 
-      false_branch(unimplemented<expr<T>*>()) {}
+    if_expr(const if_expr& o)
+    : cond(o.cond),
+      true_branch(o.true_branch),
+      false_branch(o.false_branch) {}
 
     if_expr& operator= (const if_expr& o) {
-        unimplemented<void>();
+        if(&o == this) return *this;
 
+        delete true_branch;
+        delete false_branch;
+        cond = o.cond;
+        true_branch = o.true_branch;
+        false_branch = o.false_branch;
+        o.cond = nullptr;
+        o.true_branch = nullptr;
+        o.false_branch = nullptr;
         return *this;
     }
 
-    if_expr(if_expr&& o) 
-    : cond(unimplemented<expr<bool>*>()), 
-      true_branch(unimplemented<expr<T>*>()), 
-      false_branch(unimplemented<expr<T>*>()) {
-        unimplemented<void>();
+    if_expr(if_expr&& o)
+    : cond(std::move(o.cond)),
+      true_branch(o.true_branch),
+      false_branch(o.false_branch) {
+        o.true_branch = o.false_branch = nullptr;
     }
 
     if_expr& operator= (if_expr&& o) {
-        unimplemented<void>();
+        if(&o == this) return *this;
+
+        delete true_branch;
+        delete false_branch;
+
+        cond = std::move(o.cond);
+        true_branch = o.true_branch;
+        false_branch = o.false_branch;
+        o.true_branch = o.false_branch = nullptr;
 
         return *this;
     }
 
     T eval() const override {
-        return unimplemented<T>();
+        if(cond) {
+            return true_branch->eval();
+        }
+        return false_branch->eval();
     }
 
     void print(std::ostream& out) const override {
-        unimplemented<void>();
+        if(cond) {
+            out << "(" << 1 << ")";
+        }
+        else {
+            out << "(" << 2 << ")";
+        }
     }
 
     if_expr* clone() const override {

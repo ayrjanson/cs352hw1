@@ -10,6 +10,7 @@
 
 /// Crashes with an "unimplemented" error, syntactically returning 
 /// a value of type N.
+
 template<typename N>
 N unimplemented() {
     assert(!"unimplemented");
@@ -60,14 +61,13 @@ public:
     ///Question 1c
     void print(std::ostream& out) const override {
         ///Original Code: unimplemented<void>();
-        cout << val;
+        out << val;
     }
 
     ///Question 1d
     const_expr* clone() const override {
         ///Original Code: return unimplemented<const_expr*>();
-        const_expr* cloned = new const_expr();
-        return cloned;
+        return new const_expr(*this);
     }
 };
 
@@ -145,6 +145,7 @@ class if_expr : public expr<T> {
     expr<T>* false_branch;
 
 public:
+    //This is the expression - the thing that makes the change
     if_expr(expr<bool>* c, expr<T>* t, expr<T>* f)
     : cond(c),
       true_branch(t),
@@ -163,7 +164,7 @@ public:
 
     if_expr& operator= (const if_expr& o) {
         if(&o == this) return *this;
-
+        delete cond;
         delete true_branch;
         delete false_branch;
         cond = o.cond;
@@ -203,16 +204,17 @@ public:
         return false_branch->eval();
     }
 
+    //STILL WORK ON
     void print(std::ostream& out) const override {
         if(cond) {
-            out << "(" << 1 << ")";
+            out << "true";
         }
         else {
-            out << "(" << 2 << ")";
+            out << "false";
         }
     }
 
     if_expr* clone() const override {
-        return unimplemented<if_expr*>();
+        return new if_expr(*this);
     }
 };

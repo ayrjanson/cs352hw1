@@ -9,6 +9,7 @@ int plus(int a, int b) { return a + b; }
 
 /// wrapper function for equality
 bool equals(int a, int b) { return a == b; }
+int mult(int a, int b) { return a * b;}
 
 int main() {
     // constant expressions
@@ -44,7 +45,28 @@ int main() {
     // and build the expression object and print it below, similar to the 
     // `root` example above. You may nest the subexpressions or put them in 
     // separate variables, as you will
-    auto my_expr = unimplemented<expr<int>*>();
-    std::cout << *my_expr << "\n = " << my_expr->eval() << std::endl;
-    delete my_expr;
+
+    // Plug these into each other to create the tree - good luck bestie
+    auto first = new const_expr<int>(7);
+    auto second = new const_expr<int>(6);
+
+    auto first_expr = new bin_op_expr<bool, int, int>(
+        equals, "==",
+        new bin_op_expr<int, int, int>(
+            mult, "*",
+            first,
+            second
+        ),
+        new const_expr<int>(42)
+    );
+
+    if_expr<std::string>* second_expr = new if_expr<std::string> {
+        second_expr,
+        new const_expr<std::string>("correct"),
+        new const_expr<std::string>("incorrect")
+    };
+
+    std::cout << *first_expr << "\n = " << first_expr->eval() << std::endl;
+    std::cout << *second_expr << "\n = " << second_expr->eval() << std::endl;
+    delete second_expr;
 }
